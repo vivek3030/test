@@ -6,6 +6,7 @@
 - 🌱 I’m currently learning **how to build CI-CD pipeline**
 
 <h3 align="left">keep in mind while running this project</h3>
-<p align="left" First check your minikube is running or not by using 
-                $minikube status>
+<p align="left">
+<h5 First check your minikube is running or not by using 
+    $minikube status>
 </p>
