@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_CREDENTIALS = credentials('docker-hub-credentials')  
+        KUBE_CONFIG = credentials('kubeconfig') 
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh '''
+                    docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW}
+                    docker build -t kasundvi/flask-app:latest .
+                    '''
+                }
+            }
+        }
+
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                script {
+                    // Push the Docker image to Docker Hub
+                    sh '''
+                    docker push kasundvi/flask-app:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Minikube') {
+            steps {
+                script {
+                    // Apply Kubernetes Deployment and Service YAML files
+                    sh '''
+                    kubectl --kubeconfig=${KUBE_CONFIG} apply -f deployment.yaml
+                    kubectl --kubeconfig=${KUBE_CONFIG} apply -f service.yaml
+                    '''
+                }
+            }
+        }
+
+        stage('Validate Deployment') {
+            steps {
+                script {
+                    // Validate the deployment status
+                    def deploymentStatus = sh(
+                        script: "kubectl --kubeconfig=${KUBE_CONFIG} rollout status deployment flask-app",
+                        returnStatus: true
+                    )
+                    if (deploymentStatus != 0) {
+                        error "Deployment failed. Please check the logs for details."
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment successful!"
+        }
+        failure {
+            echo "Deployment failed!"
+        }
+    }
+}
