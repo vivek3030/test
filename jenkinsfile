@@ -39,8 +39,8 @@ pipeline {
                 script {
                     // Apply Kubernetes Deployment and Service YAML files
                     sh '''
-                    sudo kubectl --kubeconfig=${KUBE_CONFIG} apply -f deployment.yaml
-                    sudo kubectl --kubeconfig=${KUBE_CONFIG} apply -f service.yaml
+                    echo "kali" | sudo -S kubectl --kubeconfig=${KUBE_CONFIG} apply -f deployment.yaml
+                    echo "kali" | sudo -S kubectl --kubeconfig=${KUBE_CONFIG} apply -f service.yaml
                     '''
                 }
             }
