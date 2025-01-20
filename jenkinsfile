@@ -1,3 +1,4 @@
+@Library("Shared") _
 pipeline {
     agent any
     environment {
@@ -5,6 +6,13 @@ pipeline {
         KUBE_CONFIG = credentials('kubeconfig') 
     }
     stages {
+        stage("use libraries") {
+            steps {
+                script{
+                    cred()
+                }
+            }
+        }
         stage('Checkout Code') {
             steps {
                 checkout scm
